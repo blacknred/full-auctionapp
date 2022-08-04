@@ -1,0 +1,111 @@
+version: "3.7"
+
+services:
+  rabbitmq:
+    container_name: rabbitmq
+    build: ./rabbitmq
+    env_file: ./.env.dev
+    restart: always
+    volumes:
+      - "./rabbitmq/data:/var/lib/rabbitmq"
+    environment:
+      - RABBITMQ_USER=${RABBITMQ_USER:-test}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-test}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - backend
+    healthcheck:
+      test: exit 0
+
+  redis:
+    container_name: redis
+    build: ./redis
+    env_file: ./.env.dev
+    restart: always
+    volumes:
+      - "./redis/data:/data"
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-test}
+    ports:
+      - "6379:6379"
+      - "8001:8001"
+    networks:
+      - backend
+    healthcheck:
+      test: exit 0
+
+  postgres:
+    container_name: postgres
+    build: ./postgres
+    env_file: ./.env.dev
+    restart: always
+    volumes:
+      - "./postgres/data:/var/lib/postgresql/data"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-test}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-test}
+      - POSTGRES_DB=${POSTGRES_DB:-users_test}
+    ports:
+      - "5432:5432"
+    networks:
+      - backend
+    healthcheck:
+      test: exit 0
+
+  api:
+    container_name: api
+    hostname: api
+    command: [ sh, -c, "yarn run docs && yarn start:dev" ]
+    env_file: ./.env.dev
+    restart: always
+    build:
+      context: ./api
+      target: build
+    volumes:
+      - "./api:/usr/src/app"
+      - "/usr/src/app/node_modules"
+      - "/usr/src/app/dist"
+    environment:
+      - NODE_ENV=development
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@status-db:5432/${POSTGRES_DB:-status_test}
+      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
+      - CLIENT_ORIGIN=${CLIENT_ORIGIN:-http://localhost:3000}
+    depends_on:
+      - redis
+      - postgres
+    ports:
+      - "8080:3000"
+    networks:
+      - backend
+      - frontend
+
+  web:
+    container_name: web
+    hostname: web
+    command: yarn dev
+    env_file: ./.env.dev
+    restart: unless-stopped
+    build:
+      context: ./web
+      target: build
+    volumes:
+      - "./web:/usr/src/app"
+      - "/usr/src/app/node_modules"
+    environment:
+      - API_ORIGIN=${API_URL:-http://localhost:8080}
+      - NODE_OPTIONS=--openssl-legacy-provider
+      - SKIP_PREFLIGHT_CHECK=true
+      - CHOKIDAR_USEPOLLING=true
+    ports:
+      - "3000:3000"
+    networks:
+      - frontend
+
+networks:
+  backend:
+    driver: bridge
+  frontend:
+    name: infrastructure
