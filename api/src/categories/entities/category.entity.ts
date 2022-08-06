@@ -17,7 +17,7 @@ export class Category extends BaseEntity<Category, 'id'> {
   @Property({ type: 'jsonb' })
   specifications!: any;
 
-  @ManyToOne(() => Category, { name: 'categoryId' })
+  @ManyToOne(() => Category, { name: 'category_id' })
   category?: Category;
 
   // constructor(user?: Partial<User>) {
