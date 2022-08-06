@@ -94,14 +94,14 @@ CREATE TABLE user (
   is_admin boolean DEFAULT 0,
   is_premium boolean DEFAULT 0,
   urgent_notification_method enum('email', 'phone') NOT NULL DEFAULT 'email',
-  currency varchar(3) NOT NULL,
+  currency varchar(3) NOT NULL DEFAULT 'usd',
   'locale' varchar(5) NOT NULL,
   created_at date NOT NULL DEFAULT now(),
   deleted_at date,
   notifications jsonb  -- [{ offer_id, body, created_at }], <1000
 )
 CREATE TABLE 'profile' (
-  'username' varchar(500) NOT NULL CHECK (length(VALUE) >= 5),
+  'username' varchar(100) NOT NULL CHECK (length(VALUE) >= 5),
   'image' text,
   bio text,
   rating smallint NOT NULL DEFAULT 0,
@@ -124,7 +124,7 @@ CREATE TABLE offer (
   title text NOT NULL,
   'description' text NOT NULL,
   specifications jsonb, -- [{ spec: value }]
-  media text[],
+  assets text[],
   created_at date NOT NULL DEFAULT now(),
   ends_at date,
   category_id smallint REFERENCES category(id) ON UPDATE CASCADE ON DELETE CASCADE,
