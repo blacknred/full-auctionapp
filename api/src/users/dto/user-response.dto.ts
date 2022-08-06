@@ -9,7 +9,7 @@ export const userMock: User = {
   name: 'testname testsecondname',
   img: 'testavatarurl',
   bio: 'testuser info',
-  createdAt: Date.now(),
+  createdAt: '2022-08-14 13:55:16.622111',
   totalStatuses: 0,
   totalFollowers: 0,
   totalFollowing: 0,

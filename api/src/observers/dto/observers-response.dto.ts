@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 import { PaginatedResponseDto } from '../../__shared__/dto/response.dto';
-import { Observer } from '../types/observer.type';
+import type { Observer } from '../types/observer.type';
 import { observerMock } from './observer-response.dto';
 
 export const observerPaginationMock = {

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 import { PaginatedResponseDto } from '../../__shared__/dto/response.dto';
-import { Category } from '../types/category.type';
+import type { Category } from '../types/category.type';
 import { categoryMock } from './category-response.dto';
 
 export const categoryPaginationMock = {

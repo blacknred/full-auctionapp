@@ -3,7 +3,7 @@ export type Profile = {
   image?: string;
   bio?: string;
   rating: number;
-  user_id: number;
+  userId: number;
   relation?: {
     observed: boolean;
   };

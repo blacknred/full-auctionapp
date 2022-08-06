@@ -1,8 +1,4 @@
-export type Notification = {
-  order_id: number;
-  body: string;
-  created_at: number;
-};
+import { Notification } from '../../notifications/types/notification.type';
 
 export type NotificationMethod = 'email' | 'phone';
 
@@ -10,10 +6,10 @@ export type User = {
   id: number;
   email: string;
   phone: string;
-  is_admin: boolean;
-  is_premium: boolean;
+  isAdmin: boolean;
+  isPremium: boolean;
   urgent_notification_method: NotificationMethod;
-  created_at: number;
-  deleted_at?: number;
+  createdAt: string;
+  deletedAt?: string;
   notifications: Notification[];
 };

@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsInstance,
   IsNumberString,
+  IsOptional,
   IsString,
   MaxLength,
   MinLength,
@@ -26,6 +27,7 @@ export class CreateCategoryDto {
   specifications: Map<string, string>;
 
   @ApiProperty({ type: 'number', example: 1 })
+  @IsOptional()
   @IsNumberString({ message: 'Must be a number' })
   categoryId?: number;
 }

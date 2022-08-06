@@ -15,22 +15,22 @@
       5. add bidder to observers
       6. sends offer notifications to observers
    2. author
-      1. cannot change offer in _active_ status
+      1. can change offer only in _failed_ status
       2. can delete own offer before _finished_ status
       3. cannot bid own offer
       4. cannot see bidders in _is-anonymous_ mode
    3. bidder
       1. can make one(_is-single-bid_) or many bids
-      2. bid must have price that incrementes(_sell-mode_) or decrementes(_buy-mode_) the nearest price by fixed(_bid-step_) of free amount
+      2. bid must have price that incrementes(_sell-mode_) or decrementes(_buy-mode_) the nearest price by fixed(_price-step_) of free amount
       3. can delete own bid
-      4. cannot bid if doesnt have enough rating in _min-rating-bid_ mode
+      4. cannot bid if doesnt have enough rating in _bidder-min-rating_ mode
       5. cannot see other bidders in _is-anonymous_ mode
       6. can bid _blitz-price_ to attempt to finish auction before ending
 2. ended(_ends-at_) or blitz-price-bid created
    1. there are no bids
-      1. system transits offer to _failed_ status and sends notifications to author and observers
+      1. system transits offer to _failed_ status and sends notifications to author/observers
    2. there are bids
-      1. system transits offer to _inactive_ status and sends notifications to author and observers
+      1. system transits offer to _inactive_ status and sends notifications to author/observers
       2. author have to accept/reject bid during 1 day, otherwise last bid is a winner
          1. system transits offer to _finished_ or _failed_ status and sends notification to author and observers
          2. system sends notifications to author and won bidder to rate each other for _finished_ offer
@@ -94,9 +94,11 @@ CREATE TABLE user (
   is_admin boolean DEFAULT 0,
   is_premium boolean DEFAULT 0,
   urgent_notification_method enum('email', 'phone') NOT NULL DEFAULT 'email',
+  currency varchar(3) NOT NULL,
+  'locale' varchar(5) NOT NULL,
   created_at date NOT NULL DEFAULT now(),
   deleted_at date,
-  notifications jsonb  -- [{ order_id, text, created_at }], <1000
+  notifications jsonb  -- [{ offer_id, body, created_at }], <1000
 )
 CREATE TABLE 'profile' (
   'username' varchar(500) NOT NULL CHECK (length(VALUE) >= 5),
@@ -120,23 +122,23 @@ CREATE TABLE offer (
   id serial PRIMARY KEY,
   'type' enum('sell', 'buy') NOT NULL DEFAULT 'sell',
   title text NOT NULL,
-  'description' text,
+  'description' text NOT NULL,
   specifications jsonb, -- [{ spec: value }]
   media text[],
   created_at date NOT NULL DEFAULT now(),
   ends_at date,
   category_id smallint REFERENCES category(id) ON UPDATE CASCADE ON DELETE CASCADE,
-  user_id int REFERENCES user(id) ON UPDATE CASCADE ON DELETE CASCADE,
+  author_id int REFERENCES user(id) ON UPDATE CASCADE ON DELETE CASCADE,
   --
   'status' enum('active', 'inactive', 'failed', 'finished') NOT NULL DEFAULT 'active',
-  start_price int NOT NULL,
-  blitz_price int,
+  start_price numeric(15,4) NOT NULL,
+  blitz_price numeric(15,4),
+  price_step numeric(15,4),
   currency varchar(3) NOT NULL,
   is_promoted boolean DEFAULT 0,
   is_anonymous boolean DEFAULT 0,
   is_single_bid boolean DEFAULT 0,
-  bid_step int,
-  min_rating_bid int,
+  bidder_min_rating int,
   --
   bids jsonb, -- [{ user_id, price, comment, created_at }])
  ) PARTITION BY RANGE (created_at);
