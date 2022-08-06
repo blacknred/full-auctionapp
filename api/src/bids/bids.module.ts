@@ -1,11 +1,13 @@
+import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
+import { Offer } from 'src/offers/entities/offer.entity';
 import { BidsController } from './bids.controller';
 import { BidsService } from './bids.service';
 
 @Module({
-  imports: [ConfigModule],
+  imports: [ConfigModule, MikroOrmModule.forFeature([Offer])],
   controllers: [BidsController],
   providers: [BidsService],
 })

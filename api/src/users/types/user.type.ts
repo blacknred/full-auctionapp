@@ -1,6 +1,9 @@
 import { Notification } from '../../notifications/types/notification.type';
 
-export type NotificationMethod = 'email' | 'phone';
+export enum NotificationMethod {
+  EMAIL = 'email',
+  PHONE = 'phone',
+}
 
 export type User = {
   id: number;

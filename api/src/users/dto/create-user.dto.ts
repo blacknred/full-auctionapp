@@ -1,19 +1,30 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString, MaxLength, MinLength } from 'class-validator';
+import {
+  IsCurrency,
+  IsEmail,
+  IsLocale,
+  Length,
+  MinLength,
+} from 'class-validator';
 
 export class CreateUserDto {
   @ApiProperty({ type: 'string', example: 'username' })
-  @IsString({ message: 'Must be a string' })
-  @MinLength(5, { message: 'Must include atleast 5 chars' })
-  @MaxLength(100, { message: 'Must include no more than 100 chars' })
+  @Length(5, 100, { message: 'Must have from 5 to 100 chars' })
   username: string;
 
   @ApiProperty({ type: 'string', example: 'test@email.com' })
-  @IsEmail(null, { message: 'Must be an valid email' })
+  @IsEmail(null, { message: 'Non valid email' })
   email: string;
 
   @ApiProperty({ type: 'string', example: 'testpass' })
-  @IsString({ message: 'Must be a string' })
   @MinLength(8, { message: 'Must include atleast 8 chars' })
   password: string;
+
+  @ApiProperty({ type: 'string', example: 'USD' })
+  @IsCurrency({ message: 'Not valid currency' })
+  currency: string;
+
+  @ApiProperty({ type: 'string', example: 'en_EN' })
+  @IsLocale({ message: 'Non valid locale' })
+  locale: string;
 }

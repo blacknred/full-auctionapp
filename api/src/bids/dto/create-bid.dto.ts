@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsNumber, IsOptional, IsUUID, MinLength } from 'class-validator';
 
 export class CreateBidDto {
   @ApiProperty({
@@ -16,6 +16,6 @@ export class CreateBidDto {
 
   @ApiProperty({ type: 'string', example: 'price comment', required: false })
   @IsOptional()
-  @IsString({ message: 'Must be a string' })
+  @MinLength(1, { message: 'Empty comment' })
   comment?: string;
 }

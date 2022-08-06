@@ -1,10 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsNumberString,
-  IsOptional,
-  IsString,
-  MinLength,
-} from 'class-validator';
+import { IsNumberString, IsOptional, MinLength } from 'class-validator';
 
 import { OffsetPaginationDto } from '../../__shared__/dto/request.dto';
 
@@ -16,7 +11,6 @@ export class GetCategoriesDto extends OffsetPaginationDto {
 
   @ApiProperty({ type: 'string', example: 'boo', required: false })
   @IsOptional()
-  @IsString({ message: 'Must be a string' })
   @MinLength(3, { message: 'Must have 3 chars at least' })
   query?: string;
 }

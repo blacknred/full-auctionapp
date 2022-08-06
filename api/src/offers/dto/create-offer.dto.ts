@@ -3,13 +3,16 @@ import {
   ArrayMaxSize,
   IsArray,
   IsBoolean,
+  IsCurrency,
   IsDateString,
   IsEnum,
   IsInstance,
   IsNumber,
   IsOptional,
   IsString,
+  IsUrl,
   Length,
+  MinLength,
 } from 'class-validator';
 
 import { OfferType } from '../types/offer.type';
@@ -23,11 +26,11 @@ export class CreateOfferDto {
   type: OfferType;
 
   @ApiProperty({ type: 'string', example: 'Offer title' })
-  @IsString({ message: 'Must be a string' })
+  @Length(5, 500, { message: 'Must have from 5 to 100 chars' })
   title: string;
 
   @ApiProperty({ type: 'string', example: 'Offer description' })
-  @IsString({ message: 'Must be a string' })
+  @MinLength(1, { message: 'Empty description' })
   description: string;
 
   @ApiProperty({
@@ -50,7 +53,7 @@ export class CreateOfferDto {
   @IsOptional()
   @IsArray({ message: 'Must be an array' })
   @ArrayMaxSize(4, { message: 'Must includes 4 assets at max' })
-  @IsString({ message: 'Must includes an url strings', each: true })
+  @IsUrl({ message: 'Not valid url', each: true })
   assets?: string[];
 
   @ApiProperty({
@@ -82,9 +85,8 @@ export class CreateOfferDto {
   @IsNumber(null, { message: 'Must be a number' })
   priceStep?: number;
 
-  @ApiProperty({ type: 'string', example: 'usd' })
-  @IsString({ message: 'Must be a string' })
-  @Length(3, 3, { message: 'Must include 3 chars' })
+  @ApiProperty({ type: 'string', example: 'USD' })
+  @IsCurrency({ message: 'Not valid currency' })
   currency: string;
 
   @ApiProperty({ type: 'boolean', example: true, required: false })

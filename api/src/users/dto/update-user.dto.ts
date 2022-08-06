@@ -1,29 +1,45 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import {
+  IsEnum,
+  IsOptional,
+  IsPhoneNumber,
+  IsUrl,
+  MinLength,
+} from 'class-validator';
 
+import { NotificationMethod } from '../types/user.type';
 import { CreateUserDto } from './create-user.dto';
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {
+  @ApiProperty({ type: 'string', example: 'user info', required: false })
+  @IsOptional()
+  @MinLength(1, { message: 'Empty description' })
+  bio?: string;
+
   @ApiProperty({
     type: 'string',
-    example: 'testname testsecondname',
+    example: 'https://path-to-profile-avatar.png',
     required: false,
   })
   @IsOptional()
-  @IsString({ message: 'Must be a string' })
-  @MinLength(5, { message: 'Must include atleast 5 chars' })
-  @MaxLength(100, { message: 'Must include no more than 100 chars' })
-  name?: string;
+  @IsUrl({ message: 'Not valid url' })
+  image?: string;
 
-  @ApiProperty({ type: 'string', example: 'testuser info', required: false })
+  @ApiProperty({
+    type: 'string',
+    example: '+1 893 287 345',
+    required: false,
+  })
   @IsOptional()
-  @IsString({ message: 'Must be a string' })
-  @MaxLength(500, { message: 'Must include no more than 500 chars' })
-  bio?: string;
+  @IsPhoneNumber(null, { message: 'Non valid phone number' })
+  phone?: string;
 
-  @ApiProperty({ type: 'string', example: 'testavatarurl', required: false })
+  @ApiProperty({
+    enum: NotificationMethod,
+    example: NotificationMethod.EMAIL,
+    required: false,
+  })
   @IsOptional()
-  @IsString({ message: 'Must be a string' })
-  @MaxLength(500, { message: 'Must include no more than 500 chars' })
-  img?: string;
+  @IsEnum(NotificationMethod, { message: 'Must be an NotificationMethod enum' })
+  urgent_notification_method?: NotificationMethod;
 }

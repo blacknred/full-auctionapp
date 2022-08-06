@@ -121,7 +121,7 @@ CREATE TABLE offer_observer (
 CREATE TABLE offer (
   id serial PRIMARY KEY,
   'type' enum('sell', 'buy') NOT NULL DEFAULT 'sell',
-  title text NOT NULL,
+  title varchar(500) NOT NULL CHECK (length(VALUE) >= 5),
   'description' text NOT NULL,
   specifications jsonb, -- [{ spec: value }]
   assets text[],

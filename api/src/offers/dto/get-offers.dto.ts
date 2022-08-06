@@ -2,13 +2,13 @@ import { ApiProperty, OmitType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsBoolean,
+  IsCurrency,
   IsEnum,
   IsIn,
   IsInstance,
   IsNumber,
   IsOptional,
   IsString,
-  Length,
   MinLength,
 } from 'class-validator';
 
@@ -37,7 +37,6 @@ export class GetOffersDto extends OmitType(PaginatedRequestDto, [
 
   @ApiProperty({ type: 'string', example: 'Boo', required: false })
   @IsOptional()
-  @IsString({ message: 'Must be a string' })
   @MinLength(3, { message: 'Must have 3 chars at least' })
   query?: string;
 
@@ -51,10 +50,9 @@ export class GetOffersDto extends OmitType(PaginatedRequestDto, [
   @IsNumber(null, { message: 'Must be a number' })
   categoryId?: number;
 
-  @ApiProperty({ type: 'string', example: 'usd', required: false })
+  @ApiProperty({ type: 'string', example: 'USD', required: false })
   @IsOptional()
-  @IsString({ message: 'Must be a string' })
-  @Length(3, 3, { message: 'Must include 3 chars' })
+  @IsCurrency({ message: 'Not valid currency' })
   currency?: string;
 
   @ApiProperty({ type: 'boolean', example: true, required: false })
