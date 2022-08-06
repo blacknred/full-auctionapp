@@ -1,4 +1,5 @@
 import type { Options } from '@mikro-orm/core';
+import { EntityCaseNamingStrategy } from '@mikro-orm/core';
 import { ConfigService } from '@nestjs/config';
 
 import { Report } from 'src/users/_reports/entities/report.entity';
@@ -10,6 +11,7 @@ const MikroOrmConfig: Options = {
   clientUrl: configService.get('POSTGRES_URL'),
   entities: [Report],
   type: 'postgresql',
+  namingStrategy: EntityCaseNamingStrategy,
 };
 
 export default MikroOrmConfig;

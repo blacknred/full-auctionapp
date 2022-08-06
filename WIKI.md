@@ -88,7 +88,7 @@ DROP TABLE IF EXISTS offer_observer;
 
 CREATE TABLE user (
   id serial PRIMARY KEY,
-  email text UNIQUE NOT NULL CHECK (length(VALUE) >= 6),
+  email text UNIQUE NOT NULL CHECK (length(VALUE) >= 5),
   password text NOT NULL,
   phone varchar(500),
   is_admin boolean DEFAULT 0,
@@ -99,7 +99,7 @@ CREATE TABLE user (
   notifications jsonb  -- [{ order_id, text, created_at }], <1000
 )
 CREATE TABLE 'profile' (
-  'username' varchar(500) NOT NULL CHECK (length(VALUE) >= 6),
+  'username' varchar(500) NOT NULL CHECK (length(VALUE) >= 5),
   'image' text,
   bio text,
   rating smallint NOT NULL DEFAULT 0,
@@ -107,9 +107,9 @@ CREATE TABLE 'profile' (
 )
 CREATE TABLE category (
   id serial PRIMARY KEY,
-  'name' varchar(500) UNIQUE NOT NULL,
+  'name' varchar(500) UNIQUE NOT NULL CHECK (length(VALUE) >= 5),
   specifications jsonb, -- [{ spec: decription }]
-  parent_id smallint REFERENCES employee(id) ON DELETE CASCADE
+  category_id smallint REFERENCES employee(id) ON DELETE CASCADE
 )
 CREATE TABLE offer_observer (
   user_id int REFERENCES user(id) ON UPDATE CASCADE,
@@ -157,7 +157,7 @@ CREATE INDEX offer_created_at_idx ON offer(created_at);
   - patch: access_token
   - delete: remove_tokens_from_cookie
 - `USER`(crud,amqp):
-  - create({email,name,password,phone?}):200: User & Profile
+  - create({email,name,password}):200: User & Profile
   - read: Profile
   - patch: enable_premium->payment_transaction->delayed_exchange_premium_payment_publish(1mon)(if_fails_disable_premium_and_send_notification)
   - delete: soft_delete->delayed_exchange_user_delete(1mon)
@@ -265,5 +265,14 @@ bids history
 - offer q&a or chat
 - payment
 - nginx
+- setup cron + backup.sh in postgres container
 - prometheus & graphana
 - switch to microservices
+
+
+
+const result = await this.connection.query(
+  'CALL myStoredProcedure (:param1value)',
+  [param1value]
+)
+
