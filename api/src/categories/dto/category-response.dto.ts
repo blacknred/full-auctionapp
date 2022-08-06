@@ -8,7 +8,7 @@ export const categoryMock: Category = {
   name: 'books',
   specifications: {
     author: 'The author',
-    date: 'Creation date',
+    year: 'Publication year',
   },
   categoryId: 1,
 };

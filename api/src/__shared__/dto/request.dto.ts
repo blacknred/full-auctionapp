@@ -3,7 +3,7 @@ import { Type } from 'class-transformer';
 import { IsIn, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 
 export class SortingDto {
-  @ApiProperty({ type: 'string', example: 'createdAt' })
+  @ApiProperty({ type: 'string', example: 'createdAt', required: false })
   @IsOptional()
   @Type(() => String)
   @IsString({ message: 'Must be a string' })
@@ -13,6 +13,7 @@ export class SortingDto {
     type: 'string',
     example: 'DESC',
     enum: ['ASC', 'DESC'],
+    required: false,
   })
   @IsOptional()
   @Type(() => String)
@@ -27,7 +28,7 @@ export class OffsetPaginationDto {
   @Min(1)
   limit: number;
 
-  @ApiProperty({ type: 'number', example: 20 })
+  @ApiProperty({ type: 'number', example: 20, required: false })
   @IsOptional()
   @Type(() => Number)
   @IsNumber(null, { message: 'Must be a number' })

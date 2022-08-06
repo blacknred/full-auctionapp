@@ -2,15 +2,24 @@ import type { Bid } from 'src/bids/types/bid.type';
 import type { Category } from 'src/categories/types/category.type';
 import type { Profile } from 'src/users/types/profile.type';
 
-export type OfferType = 'sell' | 'buy';
-export type OfferStatus = 'active' | 'inactive' | 'failed' | 'finished';
+export enum OfferType {
+  SELL = 'sell',
+  BUY = 'buy',
+}
+
+export enum OfferStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  FAILED = 'failed',
+  FINISHED = 'finished',
+}
 
 export type Offer = {
   id: string;
   type: OfferType;
   title: string;
   description: string;
-  media: string[];
+  assets: string[];
   createdAt: string;
   endsAt: string;
   specifications: Record<string, any>;

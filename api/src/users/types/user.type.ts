@@ -9,7 +9,10 @@ export type User = {
   isAdmin: boolean;
   isPremium: boolean;
   urgent_notification_method: NotificationMethod;
+  currency: string;
+  locale: string;
   createdAt: string;
   deletedAt?: string;
+  //
   notifications: Notification[];
 };

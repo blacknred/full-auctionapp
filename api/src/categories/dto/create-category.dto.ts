@@ -19,14 +19,14 @@ export class CreateCategoryDto {
     type: Map,
     example: {
       author: 'The author',
-      date: 'Creation date',
+      year: 'Creation year',
     },
   })
   @IsInstance(Map)
   @IsString({ each: true })
   specifications: Map<string, string>;
 
-  @ApiProperty({ type: 'number', example: 1 })
+  @ApiProperty({ type: 'number', example: 1, required: false })
   @IsOptional()
   @IsNumberString({ message: 'Must be a number' })
   categoryId?: number;

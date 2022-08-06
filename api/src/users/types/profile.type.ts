@@ -4,7 +4,7 @@ export type Profile = {
   bio?: string;
   rating: number;
   userId: number;
-  relation?: {
-    observed: boolean;
-  };
+  // relation?: {
+  //   observed: boolean;
+  // };
 };

@@ -8,5 +8,5 @@ export class DeleteBidDto {
   })
   @IsOptional()
   @IsUUID(4, { message: 'Must be an uuid' })
-  offerId?: string;
+  offerId: string;
 }

@@ -8,13 +8,13 @@ export class CreateBidDto {
   })
   @IsOptional()
   @IsUUID(4, { message: 'Must be an uuid' })
-  offerId?: string;
+  offerId: string;
 
   @ApiProperty({ type: 'number', example: 100.25 })
   @IsNumber(null, { message: 'Must be a number' })
   price: string;
 
-  @ApiProperty({ type: 'string', example: 'price comment' })
+  @ApiProperty({ type: 'string', example: 'price comment', required: false })
   @IsOptional()
   @IsString({ message: 'Must be a string' })
   comment?: string;
