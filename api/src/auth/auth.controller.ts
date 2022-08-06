@@ -10,8 +10,8 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
-import { UserResponseDto } from 'src/users/users/dto/user-response.dto';
-import { UsersService } from 'src/users/users/users.service';
+import { UserResponseDto } from 'src/users/dto/user-response.dto';
+import { UsersService } from 'src/users/users.service';
 
 import {
   WithCreatedApi,

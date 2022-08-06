@@ -5,7 +5,7 @@ import { ExtractJwt } from 'passport-jwt';
 import { Strategy } from 'passport-local';
 import type { Request } from 'express';
 
-import { UsersService } from 'src/users/users/users.service';
+import { UsersService } from 'src/users/users.service';
 import { Auth } from '../types/auth.type';
 import { AuthService } from '../auth.service';
 

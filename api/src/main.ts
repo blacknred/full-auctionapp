@@ -33,21 +33,14 @@ async function bootstrap() {
     .addBearerAuth()
     .setVersion('1.0')
     //
-    .addTag('Metrics')
-    .addTag('Auth')
-    //
     .addTag('Users')
-    .addTag('Subscriptions')
-    .addTag('Blocks')
-    .addTag('Reports')
-    //
-    .addTag('Statuses')
-    .addTag('Likes')
-    .addTag('Trends')
-    .addTag('Feeds')
+    .addTag('Categories')
+    .addTag('Offers')
+    .addTag('Bids')
+    .addTag('Observers')
     .addTag('Notifications')
-    //
-    .addTag('Firehose')
+    .addTag('Auth')
+    .addTag('Metrics')
     //
     .build();
 
