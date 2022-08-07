@@ -11,7 +11,7 @@ export type User = {
   phone: string;
   isAdmin: boolean;
   isPremium: boolean;
-  urgent_notification_method: NotificationMethod;
+  notification_method: NotificationMethod;
   currency: string;
   locale: string;
   createdAt: string;

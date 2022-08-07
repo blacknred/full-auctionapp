@@ -1,80 +1,50 @@
-import { BeforeCreate, Entity, Property } from '@mikro-orm/core';
+import { BeforeCreate, Entity, Enum, Property } from '@mikro-orm/core';
 import * as bcrypt from 'bcryptjs';
 
+import { BaseEntity } from 'src/__shared__/entity/baseEntity.entity';
+import { NotificationMethod } from '../types/user.type';
+
 @Entity()
-export class User {
-  // bd part
-
-  @Property({ unique: true })
-  id: number;
-
-  @Property({ unique: true, length: 50 })
-  username!: string;
-
-  @Property({ unique: true })
+export class User extends BaseEntity {
+  @Property({ unique: true, check: 'length(email) >= 5' })
   email!: string;
 
-  @Property({ length: 500, nullable: true })
-  bio?: string;
-
   @Property({ hidden: true })
-  password: string;
+  password!: string;
+
+  @Property({ nullable: true })
+  phone?: string;
+
+  @Property()
+  isAdmin = false;
+
+  @Property()
+  isPremium = false;
+
+  @Property({ length: 3, check: 'length(currency) == 3' })
+  currency = 'USD';
+
+  @Property({ length: 5, check: 'length(locale) == 5' })
+  locale!: string;
+
+  @Property({ lazy: true, nullable: true })
+  deletedAt?: Date;
+
+  @Enum({
+    items: () => NotificationMethod,
+    default: NotificationMethod.EMAIL,
+  })
+  notificationMethod: NotificationMethod = NotificationMethod.EMAIL;
+
+  @Property({ type: 'jsonb', lazy: true })
+  notifications!: any;
 
   @BeforeCreate()
   async hashPassword() {
     this.password = await bcrypt.hash(this.password, 8);
   }
 
-  // cache part
-
-  un: string;
-  fn: string;
-  img?: string;
-  ts = Date.now();
-  tss = 0;
-  tfr = 0;
-  tfg = 0;
-
-  constructor(user?: Partial<User>) {
-    Object.assign(this, user);
-    this.un = this.un ?? user.username;
-  }
-
-  // utils
-
-  *next() {
-    const names = ['id', 'un', 'fm', 'img', 'ts', 'tss', 'tfr', 'tfg'];
-    yield* names.reduce((all, n) => all.concat(n, this[n]), []);
-  }
-
-  [Symbol.iterator]() {
-    return this.next();
-  }
-
-  static toObject(user: User) {
-    return {
-      id: user.id,
-      username: user.un,
-      name: user.fn,
-      img: user.img,
-      createdAt: user.ts,
-
-      bio: user.bio,
-      email: user.email,
-
-      totalFollowers: user.tfr,
-      totalFollowing: user.tfg,
-      totalStatuses: user.tss,
-
-      //   relation?: {
-      //     blockned: boolean;
-      //     followed: boolean;
-      //     totalInterFollowing: number;
-      //   };
-    };
-  }
-
-  toObject() {
-    User.toObject(this);
-  }
+  // constructor(user?: Partial<User>) {
+  //   Object.assign(this, user);
+  // }
 }

@@ -41,5 +41,5 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   })
   @IsOptional()
   @IsEnum(NotificationMethod, { message: 'Must be an NotificationMethod enum' })
-  urgent_notification_method?: NotificationMethod;
+  notification_method?: NotificationMethod;
 }

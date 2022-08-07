@@ -93,10 +93,11 @@ CREATE TABLE user (
   phone varchar(500),
   is_admin boolean DEFAULT 0,
   is_premium boolean DEFAULT 0,
-  urgent_notification_method enum('email', 'phone') NOT NULL DEFAULT 'email',
-  currency varchar(3) NOT NULL DEFAULT 'usd',
+  notification_method enum('email', 'phone') NOT NULL DEFAULT 'email',
+  currency varchar(3) NOT NULL DEFAULT 'USD',
   'locale' varchar(5) NOT NULL,
   created_at date NOT NULL DEFAULT now(),
+  updated_at date NOT NULL,
   deleted_at date,
   notifications jsonb  -- [{ offer_id, body, created_at }], <1000
 )
@@ -111,6 +112,8 @@ CREATE TABLE category (
   id serial PRIMARY KEY,
   'name' varchar(500) UNIQUE NOT NULL CHECK (length(VALUE) >= 5),
   specifications jsonb, -- [{ spec: decription }]
+  created_at date NOT NULL DEFAULT now(),
+  updated_at date NOT NULL,
   category_id smallint REFERENCES employee(id) ON DELETE CASCADE
 )
 CREATE TABLE offer_observer (
@@ -126,6 +129,7 @@ CREATE TABLE offer (
   specifications jsonb, -- [{ spec: value }]
   assets text[],
   created_at date NOT NULL DEFAULT now(),
+  updated_at date NOT NULL,
   ends_at date,
   category_id smallint REFERENCES category(id) ON UPDATE CASCADE ON DELETE CASCADE,
   author_id int REFERENCES user(id) ON UPDATE CASCADE ON DELETE CASCADE,
@@ -134,7 +138,7 @@ CREATE TABLE offer (
   start_price numeric(15,4) NOT NULL,
   blitz_price numeric(15,4),
   price_step numeric(15,4),
-  currency varchar(3) NOT NULL,
+  currency char(3) NOT NULL,
   is_promoted boolean DEFAULT 0,
   is_anonymous boolean DEFAULT 0,
   is_single_bid boolean DEFAULT 0,
@@ -146,7 +150,7 @@ CREATE TABLE offer_2022 PARTITION OF offer FOR VALUES FROM ('2022.01.01') TO ('2
 
 CREATE UNIQUE INDEX profile_user_id_idx ON profile(user_id);
 CREATE INDEX offer_category_id_idx ON offer(category_id);
-CREATE INDEX offer_user_id_idx ON offer(user_id);
+CREATE INDEX offer_author_id_idx ON offer(author_id);
 CREATE INDEX offer_created_at_idx ON offer(created_at);
 ```
 
