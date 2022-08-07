@@ -232,7 +232,7 @@ CREATE INDEX offer_created_at_idx ON offer(created_at);
 ### FE
 
 - /auth [form[name,email,password]]
-- /profile [analitics[rating,Offers_cnt,bids_cnt,won_bids_cnt,activity_chart,top_price_bid,meduim_bid_price,pending_bids], form[name,bio,image,email,password,enable_premium,delete_account]]
+- /profile [analitics[rating,Offers_cnt,bids_cnt,won_bids_cnt,activity_chart,top_price_bid,medium_bid_price,pending_bids], form[name,bio,image,email,password,enable_premium,delete_account]]
 - /offers
   - active orders list
 - /offers/:id

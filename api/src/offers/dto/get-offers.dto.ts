@@ -6,7 +6,7 @@ import {
   IsEnum,
   IsIn,
   IsInstance,
-  IsNumber,
+  IsNumberString,
   IsOptional,
   IsString,
   MinLength,
@@ -38,7 +38,7 @@ export class GetOffersDto extends OmitType(PaginatedRequestDto, [
   @ApiProperty({ type: 'string', example: 'Boo', required: false })
   @IsOptional()
   @MinLength(3, { message: 'Must have 3 chars at least' })
-  query?: string;
+  title?: string;
 
   @ApiProperty({ type: 'boolean', example: true, required: false })
   @IsOptional()
@@ -47,7 +47,7 @@ export class GetOffersDto extends OmitType(PaginatedRequestDto, [
 
   @ApiProperty({ type: 'number', example: 1, required: false })
   @IsOptional()
-  @IsNumber(null, { message: 'Must be a number' })
+  @IsNumberString({ message: 'Must be a number' })
   categoryId?: number;
 
   @ApiProperty({ type: 'string', example: 'USD', required: false })
@@ -69,12 +69,12 @@ export class GetOffersDto extends OmitType(PaginatedRequestDto, [
 
   @ApiProperty({ type: 'number', example: 100.25, required: false })
   @IsOptional()
-  @IsNumber(null, { message: 'Must be a number' })
+  @IsNumberString({ message: 'Must be a number' })
   startPriceFrom?: number;
 
   @ApiProperty({ type: 'number', example: 100.25, required: false })
   @IsOptional()
-  @IsNumber(null, { message: 'Must be a number' })
+  @IsNumberString({ message: 'Must be a number' })
   startPriceTo?: number;
 
   @ApiProperty({ type: 'boolean', example: true, required: false })
@@ -84,7 +84,7 @@ export class GetOffersDto extends OmitType(PaginatedRequestDto, [
 
   @ApiProperty({ type: 'number', example: 30, required: false })
   @IsOptional()
-  @IsNumber(null, { message: 'Must be a number' })
+  @IsNumberString({ message: 'Must be a number' })
   bidderMinRating?: number;
 
   @ApiProperty({

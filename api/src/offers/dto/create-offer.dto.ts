@@ -7,7 +7,7 @@ import {
   IsDateString,
   IsEnum,
   IsInstance,
-  IsNumber,
+  IsNumberString,
   IsOptional,
   IsString,
   IsUrl,
@@ -66,23 +66,23 @@ export class CreateOfferDto {
 
   @ApiProperty({ type: 'number', example: 1, required: false })
   @IsOptional()
-  @IsNumber(null, { message: 'Must be a number' })
+  @IsNumberString(null, { message: 'Must be a number' })
   categoryId?: number;
 
   //
 
   @ApiProperty({ type: 'number', example: 100.25 })
-  @IsNumber(null, { message: 'Must be a number' })
+  @IsNumberString({ message: 'Must be a number' })
   startPrice: number;
 
   @ApiProperty({ type: 'number', example: 200.25, required: false })
   @IsOptional()
-  @IsNumber(null, { message: 'Must be a number' })
+  @IsNumberString({ message: 'Must be a number' })
   blitzPrice?: number;
 
   @ApiProperty({ type: 'number', example: 20.25, required: false })
   @IsOptional()
-  @IsNumber(null, { message: 'Must be a number' })
+  @IsNumberString({ message: 'Must be a number' })
   priceStep?: number;
 
   @ApiProperty({ type: 'string', example: 'USD' })
@@ -101,6 +101,6 @@ export class CreateOfferDto {
 
   @ApiProperty({ type: 'number', example: 30, required: false })
   @IsOptional()
-  @IsNumber(null, { message: 'Must be a number' })
+  @IsNumberString({ message: 'Must be a number' })
   bidderMinRating?: number;
 }

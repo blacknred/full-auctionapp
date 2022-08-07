@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 
 export class CreateUserDto {
-  @ApiProperty({ type: 'string', example: 'username' })
+  @ApiProperty({ type: 'string', example: 'John Foo' })
   @Length(5, 100, { message: 'Must have from 5 to 100 chars' })
   username: string;
 

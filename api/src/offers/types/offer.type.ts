@@ -37,4 +37,9 @@ export type Offer = {
   bidderMinRating?: number;
   //
   bids: Bid[];
+  //
+  relation: {
+    observed: boolean;
+    bidded: boolean;
+  };
 };

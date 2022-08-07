@@ -32,6 +32,11 @@ export const offerMock: Offer = {
   bidderMinRating: 30,
   //
   bids: [],
+  //
+  relation: {
+    observed: false,
+    bidded: false,
+  },
 };
 
 export class OfferResponseDto extends BaseResponseDto<Offer> {
