@@ -75,6 +75,9 @@ export class Offer extends BaseEntity<Offer> {
   @Property({ type: 'smallint', nullable: true })
   bidderMinRating?: number;
 
+  @Property()
+  viewsCnt = 0;
+
   @Index({ name: 'offer_author_id_idx' })
   @ManyToOne(() => User)
   author!: User;
@@ -97,4 +100,4 @@ export class Offer extends BaseEntity<Offer> {
   observers = new Collection<User>(this);
 }
 
-// { populate: ['bids', 'specifications', 'description'] }
+// { populate: ['specifications', 'description'] }

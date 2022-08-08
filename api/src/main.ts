@@ -34,11 +34,11 @@ async function bootstrap() {
     .setVersion('1.0')
     //
     .addTag('Users')
-    .addTag('Categories')
+    .addTag('Notifications')
     .addTag('Offers')
+    .addTag('Categories')
     .addTag('Bids')
     .addTag('Observers')
-    .addTag('Notifications')
     .addTag('Auth')
     .addTag('Metrics')
     //

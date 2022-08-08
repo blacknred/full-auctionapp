@@ -1,15 +1,6 @@
-import {
-  Embeddable,
-  Embedded,
-  Entity,
-  Index,
-  ManyToOne,
-  OneToOne,
-  Property,
-} from '@mikro-orm/core';
+import { Embeddable, ManyToOne, Property } from '@mikro-orm/core';
 
 import { Offer } from 'src/offers/offers/entities/offer.entity';
-import { User } from 'src/users/users/entities/user.entity';
 
 @Embeddable()
 export class Notification {
@@ -27,15 +18,9 @@ export class Notification {
   }
 }
 
-@Entity({ tableName: 'notification' })
-export class Notifications {
-  @Embedded(() => Notification, { array: true, object: true })
-  events: Notification[] = [];
-
-  @Index({ name: 'notification_user_id_idx' })
-  @OneToOne()
-  user: User;
-}
-
-// const repo = em.getRepository(NotificationEvent);
-// const notifications = raws.map(event => repo.map(event));
+// const repo = em.getRepository(Notification);
+// const notifications = raws.map(notification => repo.map(notification)); // raw to entity
+// SELECT jsonb_path_query_array(notifications, '$[30 to 60]') FROM timeline WHERE user_id=1; // pagination
+// UPDATE timeline SET notifications = '{"body":"You won!", "createdAt":'2022-10-14 13:55:16.622111', "offerId":'1c52a84f-3f23-4335-a5df-ea198637e634'}'::jsonb || notifications WHERE user_id=1; // add in the start
+// UPDATE timeline SET notifications = notifications - 6 WHERE user_id=1; // delete in 6 index
+// UPDATE timeline SET notifications = (SELECT jsonb_path_query_array(notifications, '$[0 to 1000]') FROM timeline  WHERE user_id=1) WHERE user_id=1; // splice to 1000

@@ -56,7 +56,7 @@
   - cache: bids:user_id(ttl)
   - pubsub: offers_channel firehose
 - Postgres
-  - entities: User, Profile, Category, Offer, Offer_Observer
+  - entities
   - procedures
 - Nginx
   - proxy
@@ -82,7 +82,7 @@
 ```ddl
 DROP TABLE IF EXISTS user;
 DROP TABLE IF EXISTS 'identity';
-DROP TABLE IF EXISTS 'notification';
+DROP TABLE IF EXISTS timeline;
 DROP TABLE IF EXISTS category;
 DROP TABLE IF EXISTS offer;
 DROP TABLE IF EXISTS offer_bid;
@@ -110,8 +110,8 @@ CREATE TABLE 'identity' (
   'locale' varchar(5) NOT NULL,
   user_id int REFERENCES user(id) UNIQUE ON UPDATE CASECADE ON DELETE SET NULL
 )
-CREATE TABLE 'notification' (
-  events jsonb  -- [{ offer_id, body, created_at }], <1000
+CREATE TABLE timeline (
+  notifications jsonb  -- [{ offer_id, body, created_at }], <1000
   user_id int REFERENCES user(id) UNIQUE ON UPDATE CASCADE ON DELETE SET NULL
 )
 
@@ -134,9 +134,6 @@ CREATE TABLE offer (
   created_at date NOT NULL DEFAULT now(),
   updated_at date NOT NULL,
   ends_at date,
-  category_id smallint REFERENCES category(id) ON UPDATE CASCADE ON DELETE CASCADE,
-  author_id int REFERENCES user(id) ON UPDATE CASCADE ON DELETE CASCADE,
-  --
   'status' enum('active', 'inactive', 'failed', 'finished') NOT NULL DEFAULT 'active',
   start_price numeric(15,4) NOT NULL,
   blitz_price numeric(15,4),
@@ -146,6 +143,9 @@ CREATE TABLE offer (
   is_anonymous boolean DEFAULT 0,
   is_single_bid boolean DEFAULT 0,
   bidder_min_rating int,
+  views_cnt int NOT NULL DEFAULT 0;
+  category_id smallint REFERENCES category(id) ON UPDATE CASCADE ON DELETE CASCADE,
+  author_id int REFERENCES user(id) ON UPDATE CASCADE ON DELETE CASCADE,
  ) PARTITION BY RANGE (created_at);
 CREATE TABLE offer_2022 PARTITION OF offer FOR VALUES FROM ('2022.01.01') TO ('2023-01-01');
 CREATE TABLE offer_observer (
@@ -178,93 +178,84 @@ CREATE INDEX offer_created_at_idx ON offer(created_at);
   - read:
   - patch: access_token
   - delete: remove_tokens_from_cookie
-- `USER`(crud,amqp):
-  - create({email,name,password}):200: User & Profile
-  - read: Profile
-  - patch: enable_premium->payment_transaction->delayed_exchange_premium_payment_publish(1mon)(if_fails_disable_premium_and_send_notification)
-  - delete: soft_delete->delayed_exchange_user_delete(1mon)
-  - premium*payment(): delayed_exchange_premium_payment_consume->payment_transaction
-    -\_premium-payment(amqp)*: payment_transaction->if_fails_disable_premium_and_send_notification
-- `NOTIFICATION`(crd,amqp)
-  - create
-  - read
-  - delete
-- `CATEGORY`(crud)
-  - create(401/403, {}):
-  - read:
-  - patch(401/403):
-  - delete(401/403):
-- `OFFER`(crud,amqp,redis)
-  - create(401)
-    - db_write_Offer
-    - delayed_exchange_offer_ends_publish
-    - redis_offers_channel_publish
-  - read:
-    - db_read_from_all_own_and_only_active_theirs
-      - filter[category,user_id,start_price,query,created_at,ends_at,blitz_price,is_down_price,observed]
-      - sort[created_at,ends_at,start_price,blitz_price]
-      - pagination[keyset]
-  - readOne(401):
-    - db*read_Offer*(404)
-  - patch(401)
-    - db_update_Offer_only_in_non_active_status(408)
-    - delayed_exchange_offer_ends_consume->define_winner
-      - db_update_status
-        - db_remove_from_observed_if_finished
+- `USER`
+  - `USER`(crud,amqp):
+    - create({email,name,password}):200: User & Profile
+    - read: Profile
+    - patch: enable_premium->payment_transaction->delayed_exchange_premium_payment_publish(1mon)(if_fails_disable_premium_and_send_notification)
+    - delete: soft_delete->delayed_exchange_user_delete(1mon)
+    - premium*payment(): delayed_exchange_premium_payment_consume->payment_transaction
+      -\_premium-payment(amqp)*: payment_transaction->if_fails_disable_premium_and_send_notification
+  - `NOTIFICATION`(crd,amqp)
+    - create
+    - read
+    - delete
+- `OFFER`
+  - `CATEGORY`(crud)
+    - create(401/403, {}):
+    - read:
+    - patch(401/403):
+    - delete(401/403):
+  - `OFFER`(crud,amqp,redis)
+    - create(401)
+      - db_write_Offer
+      - delayed_exchange_offer_ends_publish
+      - redis_offers_channel_publish
+    - read:
+      - db_read_from_all_own_and_only_active_theirs
+        - filter[category,user_id,start_price,query,created_at,ends_at,blitz_price,is_down_price,observed]
+        - sort[created_at,ends_at,start_price,blitz_price]
+        - pagination[keyset]
+    - readOne(401):
+      - db*read_Offer*(404)
+    - patch(401)
+      - db_update_Offer_only_in_non_active_status(408)
+      - delayed_exchange_offer_ends_consume->define_winner
+        - db_update_status
+          - db_remove_from_observed_if_finished
+        - **notify_all_bidders**
+    - delete(401)
+      - db_delete_Offer
+      - db_delete_related_bids
       - **notify_all_bidders**
-  - delete(401)
-    - db_delete_Offer
-    - db_delete_related_bids
-    - **notify_all_bidders**
-  - firehose(a,sse): redis_offers_channel_subscribe->filter[none,category,user_id,start_price,query]
-- `OBSERVER`(crd)
-  - create(401): upsert offer_observer
-  - read(401):
-  - delete(401):
-- `BID`(crd,amqp,redis)
-  - create(401)
-    - filter_bids_from_user_with_premium_or_under_25_bids_per_month
-    - delayed_exchange_bulk_bids_publish
-  - createBulk(amqp)
-    - delayed_exchange_bulk_bids_consume
-    - sort_bids_by_creation_date_since(rabbitmq_doesnt_guarantees_message_order)
-    - reject those which disorder price and notify bidders about rejection
-    - db_bulk_insert_Bids
-    - db_upsert_offer_to_Offer_Observer
-  - read(401)
-    - db_read_Bids
-  - delete(401)
-    - db_deleteBid/s
-    <!-- notifications
-    - seller
-      - offer successfully deleted/ended
-      - a new bid for offer
-      - offer winner
-      - rate a buyer
-      - a new question about offer
-      - offer promotion ended
-    - buyer
-      - offer i observer is deleted/ended
-      - my bid was outbid/rejected/deleted
-      - offer winner
-      - rate a seller -->
+    - firehose(a,sse): redis_offers_channel_subscribe->filter[none,category,user_id,start_price,query]
+  - `OBSERVER`(crd)
+    - create(401): upsert offer_observer
+    - read(401):
+    - delete(401):
+  - `BID`(crd,amqp,redis)
+    - create(401)
+      - filter_bids_from_user_with_premium_or_under_25_bids_per_month
+      - delayed_exchange_bulk_bids_publish
+    - createBulk(amqp)
+      - delayed_exchange_bulk_bids_consume
+      - sort_bids_by_creation_date_since(rabbitmq_doesnt_guarantees_message_order)
+      - reject those which disorder price and notify bidders about rejection
+      - db_bulk_insert_Bids
+      - db_upsert_offer_to_Offer_Observer
+    - read(401)
+      - db_read_Bids
+    - delete(401)
+      - db_deleteBid/s
+      <!-- notifications
+      - seller
+        - offer successfully deleted/ended
+        - a new bid for offer
+        - offer winner
+        - rate a buyer
+        - a new question about offer
+        - offer promotion ended
+      - buyer
+        - offer i observer is deleted/ended
+        - my bid was outbid/rejected/deleted
+        - offer winner
+        - rate a seller -->
 
 ### FE
 
-- /auth [form[name,email,password]]
-- /profile [analitics[rating,Offers_cnt,bids_cnt,won_bids_cnt,activity_chart,top_price_bid,medium_bid_price,pending_bids], form[name,bio,image,email,password,enable_premium,delete_account]]
-- /offers
-  - active orders list
-- /offers/:id
-  - form[]
-  - chart[]
-- /offer
-  - form[]
-- /
-  - [observed,bidded,won]
 - admin sections: users,categories,promotions
 
-— Header —
+<!-- — Header —
 Auction lang, currency, profile/rating/notifications
 — Card —
 media[0]
@@ -278,7 +269,7 @@ current-top-bid time-remaining
 media. input? submit-bid
 blitz-price
 buy-now
-bids history
+bids history -->
 
 ## TODO
 
@@ -287,14 +278,5 @@ bids history
 - offer q&a or chat
 - payment
 - nginx
-- setup cron + backup.sh in postgres container
 - prometheus & graphana
 - switch to microservices
-
-
-
-const result = await this.connection.query(
-  'CALL myStoredProcedure (:param1value)',
-  [param1value]
-)
-

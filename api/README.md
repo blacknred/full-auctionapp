@@ -2,7 +2,7 @@
 
 ## Stack
 
-TS, Nodejs, NestJs, REST
+TS, Nodejs, NestJs, REST, SSE
 
 ## Running the app
 

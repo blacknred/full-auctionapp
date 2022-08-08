@@ -34,6 +34,7 @@ export type Offer = {
   isAnonimous: boolean;
   isSingleBid: boolean;
   bidderMinRating?: number;
+  viewsCnt: number;
   category: Category;
   author: User;
   //
