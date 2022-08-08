@@ -178,6 +178,15 @@ CREATE INDEX offer_created_at_idx ON offer(created_at);
   - read:
   - patch: access_token
   - delete: remove_tokens_from_cookie
+- `PAYMENT`(cd,amqp)
+  - create(user_enable_promotion_or_premium):
+    - try_payment ? update_offer_promotion_or_premium_profile_to_true_and_set_delayed_exchange_payment : null
+    - send_notification
+  - delete(user_disable_promotion_or_premium): just_update_offer_promotion_or_premium_profile_to_false
+  - payment_method(amqp):
+    - offer_promotion_or_premium_profile_are_false_or_offer_is_finished ?? return
+    - try_payment ? set_new_amqp_message : update_offer_promotion_or_premium_profile_to_false
+    - send_notification
 - `USER`
   - `USER`(crud,amqp):
     - create({email,name,password}):200: User & Profile
@@ -275,18 +284,10 @@ bids history -->
 
 ## TODO
 
-- payment service(stripe):
-  - create(user_enable_promotion_or_premium):
-    - try_payment ? update_offer_promotion_or_premium_profile_to_true_and_set_delayed_exchange_payment : null
-    - send_notification
-  - delete(user_disable_promotion_or_premium): just_update_offer_promotion_or_premium_profile_to_false
-  - payment_method(amqp):
-    - offer_promotion_or_premium_profile_are_false_or_offer_is_finished ?? return
-    - try_payment ? set_new_amqp_message : update_offer_promotion_or_premium_profile_to_false
-    - send_notification
 - private offers: restrict access to auction with invitations or groups
 - full text search for offer.title field with tsvector
 - offer q&a or chat
+- stripe
 - nginx
 - prometheus & graphana
 - switch to microservices

@@ -8,6 +8,7 @@ import { RedisModule } from 'nestjs-redis';
 import { AuthModule } from './auth/auth.module';
 import { MonitoringModule } from './monitoring/monitoring.module';
 import { OffersModule } from './offers/offers.module';
+import { PaymentModule } from './payment/payment.module';
 import { UsersModule } from './users/users.module';
 import { databaseProvider } from './__shared__/providers/database.provider';
 import { queueProvider } from './__shared__/providers/queue.provider';
@@ -36,6 +37,7 @@ import { redisProvider } from './__shared__/providers/redis.provider';
     UsersModule,
     OffersModule,
     AuthModule,
+    PaymentModule,
     MonitoringModule,
   ],
   providers: [Logger],
