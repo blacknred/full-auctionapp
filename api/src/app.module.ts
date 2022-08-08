@@ -6,11 +6,7 @@ import { AmqpModule } from 'nestjs-amqp';
 import { RedisModule } from 'nestjs-redis';
 
 import { AuthModule } from './auth/auth.module';
-import { BidsModule } from './bids/bids.module';
-import { CategoriesModule } from './categories/categories.module';
 import { MonitoringModule } from './monitoring/monitoring.module';
-import { NotificationsModule } from './notifications/notifications.module';
-import { ObserversModule } from './observers/observers.module';
 import { OffersModule } from './offers/offers.module';
 import { UsersModule } from './users/users.module';
 import { databaseProvider } from './__shared__/providers/database.provider';
@@ -38,11 +34,7 @@ import { redisProvider } from './__shared__/providers/redis.provider';
     RedisModule.forRootAsync(redisProvider),
     AmqpModule.forRootAsync(queueProvider),
     UsersModule,
-    CategoriesModule,
     OffersModule,
-    BidsModule,
-    ObserversModule,
-    NotificationsModule,
     AuthModule,
     MonitoringModule,
   ],

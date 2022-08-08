@@ -1,14 +1,9 @@
-import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 
-import { User } from './entities/user.entity';
-import { UsersController } from './users.controller';
-import { UsersService } from './users.service';
+import { NotificationsModule } from './notifications/notifications.module';
+import { UsersModule as BaseModule } from './users/users.module';
 
 @Module({
-  imports: [ConfigModule, MikroOrmModule.forFeature([User])],
-  controllers: [UsersController],
-  providers: [UsersService],
+  imports: [BaseModule, NotificationsModule],
 })
 export class UsersModule {}
