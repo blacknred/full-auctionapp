@@ -84,6 +84,7 @@ DROP TABLE IF EXISTS user;
 DROP TABLE IF EXISTS 'profile';
 DROP TABLE IF EXISTS category;
 DROP TABLE IF EXISTS offer;
+DROP TABLE IF EXISTS offer_bid;
 DROP TABLE IF EXISTS offer_observer;
 
 CREATE TABLE user (
@@ -116,11 +117,6 @@ CREATE TABLE category (
   updated_at date NOT NULL,
   category_id smallint REFERENCES employee(id) ON DELETE CASCADE
 )
-CREATE TABLE offer_observer (
-  user_id int REFERENCES user(id) ON UPDATE CASCADE,
-  offer_id int REFERENCES offer(id) ON UPDATE CASCADE,
-  PRIMARY KEY (user_id, offer_id)
-)
 CREATE TABLE offer (
   id serial PRIMARY KEY,
   'type' enum('sell', 'buy') NOT NULL DEFAULT 'sell',
@@ -143,10 +139,21 @@ CREATE TABLE offer (
   is_anonymous boolean DEFAULT 0,
   is_single_bid boolean DEFAULT 0,
   bidder_min_rating int,
-  --
-  bids jsonb, -- [{ user_id, price, comment, created_at }])
  ) PARTITION BY RANGE (created_at);
 CREATE TABLE offer_2022 PARTITION OF offer FOR VALUES FROM ('2022.01.01') TO ('2023-01-01');
+CREATE TABLE offer_observer (
+  offer_id int REFERENCES offer(id) ON UPDATE CASCADE,
+  user_id int REFERENCES user(id) ON UPDATE CASCADE,
+  PRIMARY KEY (offer_id, user_id)
+)
+CREATE TABLE offer_bid (
+  price numeric(15,4) NOT NULL,
+  comment text,
+  created_at date NOT NULL DEFAULT now(),
+  offer_id int REFERENCES offer(id) ON UPDATE CASCADE,
+  user_id int REFERENCES user(id) ON UPDATE CASCADE,
+  PRIMARY KEY (offer_id, user_id)
+)
 
 CREATE UNIQUE INDEX profile_user_id_idx ON profile(user_id);
 CREATE INDEX offer_category_id_idx ON offer(category_id);

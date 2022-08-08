@@ -1,5 +1,8 @@
 import type { Bid } from 'src/bids/types/bid.type';
-import type { Category } from 'src/categories/types/category.type';
+import type {
+  Category,
+  CategorySpecifications,
+} from 'src/categories/types/category.type';
 import type { Profile } from 'src/users/types/profile.type';
 
 export enum OfferType {
@@ -22,7 +25,7 @@ export type Offer = {
   assets: string[];
   createdAt: string;
   endsAt: string;
-  specifications: Record<string, any>;
+  specifications: CategorySpecifications;
   category: Category;
   author: Profile;
   //

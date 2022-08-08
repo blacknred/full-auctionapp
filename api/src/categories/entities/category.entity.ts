@@ -1,28 +1,25 @@
 import { Entity, ManyToOne, Property } from '@mikro-orm/core';
 
 import { BaseEntity } from 'src/__shared__/entity/baseEntity.entity';
+import type { CategorySpecifications } from '../types/category.type';
 
-@Entity()
-export class Category extends BaseEntity {
+@Entity({ tableName: 'category' })
+export class Category extends BaseEntity<Category> {
   @Property({
     unique: true,
-    type: 'varchar',
     length: 500,
     check: 'length(name) >= 5',
   })
   name!: string;
 
   @Property({ type: 'jsonb', lazy: true })
-  specifications!: any;
+  specifications!: CategorySpecifications;
 
-  @ManyToOne(() => Category, {
-    name: 'category_id',
-    lazy: true,
-    nullable: true,
-  })
+  @ManyToOne(() => Category, { nullable: true })
   category?: Category;
 
-  // constructor(category?: Partial<Category>) {
-  //   Object.assign(this, category);
-  // }
+  constructor(category?: Partial<Category>) {
+    super();
+    Object.assign(this, category);
+  }
 }

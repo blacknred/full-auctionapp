@@ -1,17 +1,17 @@
 import { Entity, ManyToOne } from '@mikro-orm/core';
 
 import { Offer } from 'src/offers/entities/offer.entity';
-import { User } from 'src/users/entities/user.entity';
+import { Profile } from 'src/users/entities/profile.entity';
 
 @Entity({ tableName: 'order_observer' })
 export class Observer {
-  @ManyToOne(() => User, { name: 'user_id', lazy: true })
-  userId: number;
+  @ManyToOne(() => Profile, { primary: true })
+  user: Profile;
 
-  @ManyToOne(() => Offer, { name: 'offer_id', lazy: true })
-  offerId: string;
+  @ManyToOne(() => Offer, { primary: true })
+  offer: Offer;
 
-  // constructor(observer?: Partial<Observer>) {
-  //   Object.assign(this, observer);
-  // }
+  constructor(observer?: Partial<Observer>) {
+    Object.assign(this, observer);
+  }
 }

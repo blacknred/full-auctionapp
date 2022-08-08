@@ -5,7 +5,10 @@ import {
   Property,
 } from '@mikro-orm/core';
 
-export abstract class BaseEntity extends Base<BaseEntity, 'id'> {
+export abstract class BaseEntity<T extends { id: number }> extends Base<
+  T,
+  'id'
+> {
   @PrimaryKey()
   id: number;
 
