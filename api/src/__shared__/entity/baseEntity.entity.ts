@@ -5,12 +5,12 @@ import {
   Property,
 } from '@mikro-orm/core';
 
-export abstract class BaseEntity<T extends { id: number }> extends Base<
+export abstract class BaseEntity<T extends { id: unknown }> extends Base<
   T,
   'id'
 > {
   @PrimaryKey()
-  id: number;
+  id: unknown;
 
   @Property()
   @Index()

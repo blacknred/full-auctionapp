@@ -3,14 +3,14 @@ import { offerMock } from 'src/offers/offers/dto/offer-response.dto';
 
 import { userMock } from 'src/users/users/dto/user-response.dto';
 import { BaseResponseDto } from '../../../__shared__/dto/response.dto';
-import type { Observer } from '../types/observer.type';
+import type { Favorite } from '../types/favorite.type';
 
-export const observerMock: Observer = {
+export const favoriteMock: Favorite = {
   user: userMock,
   offer: offerMock,
 };
 
-export class ObserverResponseDto extends BaseResponseDto<Observer> {
-  @ApiProperty({ example: observerMock, required: false })
-  data?: Observer;
+export class FavoriteResponseDto extends BaseResponseDto<Favorite> {
+  @ApiProperty({ example: favoriteMock, required: false })
+  data?: Favorite;
 }

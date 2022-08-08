@@ -14,7 +14,7 @@ import { v4 } from 'uuid';
 import { Bid } from 'src/offers/bids/entities/bid.entity';
 import { Category } from 'src/offers/categories/entities/category.entity';
 import type { CategorySpecifications } from 'src/offers/categories/types/category.type';
-import { Observer } from 'src/offers/observers/entities/observer.entity';
+import { Observer } from 'src/offers/favorites/entities/favorite.entity';
 import { User } from 'src/users/users/entities/user.entity';
 import { BaseEntity } from 'src/__shared__/entity/baseEntity.entity';
 import { OfferStatus, OfferType } from '../types/offer.type';
@@ -22,12 +22,9 @@ import { OfferStatus, OfferType } from '../types/offer.type';
 @Entity({ tableName: 'offer' })
 export class Offer extends BaseEntity<Offer> {
   @PrimaryKey()
-  id = v4() as unknown as number;
+  id = v4();
 
-  @Property({
-    length: 500,
-    check: 'length(title) >= 5',
-  })
+  @Property({ length: 500, check: 'length(title) >= 5' })
   title!: string;
 
   @Property({ type: 'text', lazy: true })
@@ -36,10 +33,7 @@ export class Offer extends BaseEntity<Offer> {
   @Enum({ items: () => OfferType, default: OfferType.SELL })
   type: OfferType = OfferType.SELL;
 
-  @Enum({
-    items: () => OfferStatus,
-    default: OfferStatus.ACTIVE,
-  })
+  @Enum({ items: () => OfferStatus, default: OfferStatus.ACTIVE })
   status: OfferStatus = OfferStatus.ACTIVE;
 
   @Property({ type: ArrayType, default: [] })
@@ -99,5 +93,3 @@ export class Offer extends BaseEntity<Offer> {
   @ManyToMany({ entity: () => User, pivotEntity: () => Observer })
   observers = new Collection<User>(this);
 }
-
-// { populate: ['specifications', 'description'] }

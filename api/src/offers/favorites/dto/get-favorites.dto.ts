@@ -3,7 +3,7 @@ import { IsOptional, IsUUID } from 'class-validator';
 
 import { OffsetPaginationDto } from '../../../__shared__/dto/request.dto';
 
-export class GetObserversDto extends OffsetPaginationDto {
+export class GetFavoritesDto extends OffsetPaginationDto {
   @ApiProperty({
     type: 'string',
     required: false,

@@ -219,7 +219,7 @@ CREATE INDEX offer_created_at_idx ON offer(created_at);
       - db_delete_related_bids
       - **notify_all_bidders**
     - firehose(a,sse): redis_offers_channel_subscribe->filter[none,category,user_id,start_price,query]
-  - `OBSERVER`(crd)
+  - `FAVORITE`(crd)
     - create(401): upsert offer_observer
     - read(401):
     - delete(401):
@@ -253,12 +253,14 @@ CREATE INDEX offer_created_at_idx ON offer(created_at);
 
 ### FE
 
-- admin sections: users,categories,promotions
+- /auth, /auth/new, /auth/restore
+- /, /[:category], /offer/:id, /offer
+- /my, /my/watchlist, my/bids, /my/offers, /my/notifications, /my/profile
 
 <!-- — Header —
 Auction lang, currency, profile/rating/notifications
 — Card —
-media[0]
+media[0]Ø
 title
 current-price time-remaining
 — Page —
@@ -273,10 +275,19 @@ bids history -->
 
 ## TODO
 
-- private offers: restricts access to auction
-- full text search for offer.title with tsvector
+- payment service(stripe):
+  - create(user_enable_promotion_or_premium):
+    - try_payment ? update_offer_promotion_or_premium_profile_to_true_and_set_delayed_exchange_payment : null
+    - send_notification
+  - delete(user_disable_promotion_or_premium): just_update_offer_promotion_or_premium_profile_to_false
+  - payment_method(amqp):
+    - offer_promotion_or_premium_profile_are_false_or_offer_is_finished ?? return
+    - try_payment ? set_new_amqp_message : update_offer_promotion_or_premium_profile_to_false
+    - send_notification
+- private offers: restrict access to auction with invitations or groups
+- full text search for offer.title field with tsvector
 - offer q&a or chat
-- payment
 - nginx
 - prometheus & graphana
 - switch to microservices
+- web admin client: /users, /categories, /promotions

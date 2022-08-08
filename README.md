@@ -9,7 +9,7 @@ Monolith boilerplate for Auction broking app
 | DB          | postgres  | Postgres               | 5432   |
 | Redis       | redis     | Redis                  | 6379   |
 | Queue       | rabbitmq  | RabbitMQ               | 5672   |
-| API service | api       | TS, NestJS, Http, REST | 8080   |
+| API         | api       | TS, NestJS, Http, REST | 8080   |
 | Proxy       | nginx     | Nginx                  | 80/443 |
 | Web client  | web       | TS, Next, Tailwind     | 3000   |
 
