@@ -81,34 +81,41 @@
 
 ```ddl
 DROP TABLE IF EXISTS user;
-DROP TABLE IF EXISTS 'profile';
+DROP TABLE IF EXISTS 'identity';
+DROP TABLE IF EXISTS 'notification';
 DROP TABLE IF EXISTS category;
 DROP TABLE IF EXISTS offer;
 DROP TABLE IF EXISTS offer_bid;
 DROP TABLE IF EXISTS offer_observer;
 
+-- USERS
 CREATE TABLE user (
   id serial PRIMARY KEY,
+  'username' varchar(100) NOT NULL CHECK (length(VALUE) >= 5),
+  'image' text,
+  bio text,
+  rating smallint NOT NULL DEFAULT 0,
+  created_at date NOT NULL DEFAULT now(),
+  updated_at date NOT NULL,
+  deleted_at date,
+)
+CREATE TABLE 'identity' (
   email text UNIQUE NOT NULL CHECK (length(VALUE) >= 5),
-  password text NOT NULL,
+  'password' text NOT NULL,
   phone varchar(500),
   is_admin boolean DEFAULT 0,
   is_premium boolean DEFAULT 0,
   notification_method enum('email', 'phone') NOT NULL DEFAULT 'email',
   currency varchar(3) NOT NULL DEFAULT 'USD',
   'locale' varchar(5) NOT NULL,
-  created_at date NOT NULL DEFAULT now(),
-  updated_at date NOT NULL,
-  deleted_at date,
-  notifications jsonb  -- [{ offer_id, body, created_at }], <1000
+  user_id int REFERENCES user(id) UNIQUE ON UPDATE CASECADE ON DELETE SET NULL
 )
-CREATE TABLE 'profile' (
-  'username' varchar(100) NOT NULL CHECK (length(VALUE) >= 5),
-  'image' text,
-  bio text,
-  rating smallint NOT NULL DEFAULT 0,
+CREATE TABLE 'notification' (
+  events jsonb  -- [{ offer_id, body, created_at }], <1000
   user_id int REFERENCES user(id) UNIQUE ON UPDATE CASCADE ON DELETE SET NULL
 )
+
+-- OFFERS
 CREATE TABLE category (
   id serial PRIMARY KEY,
   'name' varchar(500) UNIQUE NOT NULL CHECK (length(VALUE) >= 5),
@@ -155,7 +162,9 @@ CREATE TABLE offer_bid (
   PRIMARY KEY (offer_id, user_id)
 )
 
-CREATE UNIQUE INDEX profile_user_id_idx ON profile(user_id);
+-- INDICES
+CREATE UNIQUE INDEX identity_user_id_idx ON 'identity'(user_id);
+CREATE UNIQUE INDEX notification_user_id_idx ON 'notification'(user_id);
 CREATE INDEX offer_category_id_idx ON offer(category_id);
 CREATE INDEX offer_author_id_idx ON offer(author_id);
 CREATE INDEX offer_created_at_idx ON offer(created_at);

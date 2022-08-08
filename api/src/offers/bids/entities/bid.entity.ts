@@ -1,12 +1,12 @@
 import { Entity, ManyToOne, Property } from '@mikro-orm/core';
 
 import { Offer } from 'src/offers/offers/entities/offer.entity';
-import { Profile } from 'src/users/users/entities/profile.entity';
+import { User } from 'src/users/users/entities/user.entity';
 
 @Entity({ tableName: 'offer_bid' })
 export class Bid {
-  @ManyToOne(() => Profile, { primary: true })
-  user: Profile;
+  @ManyToOne(() => User, { primary: true })
+  user: User;
 
   @ManyToOne(() => Offer, { primary: true })
   offer: Offer;

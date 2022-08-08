@@ -1,7 +1,7 @@
 import type { Offer } from 'src/offers/offers/types/offer.type';
-import type { Profile } from 'src/users/users/types/profile.type';
+import type { User } from 'src/users/users/types/user.type';
 
 export type Observer = {
-  user: Profile;
+  user: User;
   offer: Offer;
 };

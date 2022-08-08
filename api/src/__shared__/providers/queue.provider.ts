@@ -9,7 +9,6 @@ export const queueProvider: AmqpAsyncOptionsInterface = {
     );
 
     return {
-      // name: 'queue',
       hostname,
       port: +port,
       username,

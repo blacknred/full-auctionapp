@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { userMock } from 'src/users/users/dto/user-response.dto';
 
 import { BaseResponseDto } from '../../../__shared__/dto/response.dto';
 import type { Bid } from '../types/bid.type';

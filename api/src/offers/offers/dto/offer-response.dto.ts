@@ -31,8 +31,6 @@ export const offerMock: Offer = {
   isSingleBid: false,
   bidderMinRating: 30,
   //
-  bids: [],
-  //
   relation: {
     observed: false,
     bidded: false,

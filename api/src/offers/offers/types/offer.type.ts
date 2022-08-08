@@ -1,9 +1,8 @@
-import type { Bid } from 'src/offers/bids/types/bid.type';
 import type {
   Category,
   CategorySpecifications,
 } from 'src/offers/categories/types/category.type';
-import type { Profile } from 'src/users/users/types/profile.type';
+import type { User } from 'src/users/users/types/user.type';
 
 export enum OfferType {
   SELL = 'sell',
@@ -26,9 +25,6 @@ export type Offer = {
   createdAt: string;
   endsAt: string;
   specifications: CategorySpecifications;
-  category: Category;
-  author: Profile;
-  //
   status: OfferStatus;
   startPrice: number;
   blitzPrice: number;
@@ -38,10 +34,10 @@ export type Offer = {
   isAnonimous: boolean;
   isSingleBid: boolean;
   bidderMinRating?: number;
+  category: Category;
+  author: User;
   //
-  bids: Bid[];
-  //
-  relation: {
+  relation?: {
     observed: boolean;
     bidded: boolean;
   };

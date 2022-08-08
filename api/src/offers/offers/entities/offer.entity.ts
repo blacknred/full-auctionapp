@@ -15,7 +15,7 @@ import { Bid } from 'src/offers/bids/entities/bid.entity';
 import { Category } from 'src/offers/categories/entities/category.entity';
 import type { CategorySpecifications } from 'src/offers/categories/types/category.type';
 import { Observer } from 'src/offers/observers/entities/observer.entity';
-import { Profile } from 'src/users/users/entities/profile.entity';
+import { User } from 'src/users/users/entities/user.entity';
 import { BaseEntity } from 'src/__shared__/entity/baseEntity.entity';
 import { OfferStatus, OfferType } from '../types/offer.type';
 
@@ -76,8 +76,8 @@ export class Offer extends BaseEntity<Offer> {
   bidderMinRating?: number;
 
   @Index({ name: 'offer_author_id_idx' })
-  @ManyToOne(() => Profile)
-  author!: Profile;
+  @ManyToOne(() => User)
+  author!: User;
 
   @Index({ name: 'offer_category_id_idx' })
   @ManyToOne(() => Category, { nullable: true })
@@ -90,11 +90,11 @@ export class Offer extends BaseEntity<Offer> {
 
   //
 
-  @ManyToMany({ entity: () => Profile, pivotEntity: () => Bid })
+  @ManyToMany({ entity: () => User, pivotEntity: () => Bid })
   bids = new Collection<Bid>(this);
 
-  @ManyToMany({ entity: () => Profile, pivotEntity: () => Observer })
-  observers = new Collection<Profile>(this);
+  @ManyToMany({ entity: () => User, pivotEntity: () => Observer })
+  observers = new Collection<User>(this);
 }
 
 // { populate: ['bids', 'specifications', 'description'] }

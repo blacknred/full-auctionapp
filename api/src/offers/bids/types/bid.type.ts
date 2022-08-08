@@ -1,7 +1,7 @@
-import type { Profile } from '../../../users/users/types/profile.type';
+import type { User } from '../../../users/users/types/user.type';
 
 export type Bid = {
-  user: Profile;
+  user: User;
   price: number;
   comment?: string;
   createdAt: string;
