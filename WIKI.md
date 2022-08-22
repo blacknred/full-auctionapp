@@ -288,7 +288,6 @@ bids history -->
 - full text search for offer.title field with tsvector
 - offer q&a or chat
 - stripe
-- nginx
 - prometheus & graphana
 - switch to microservices
 - web admin client: /users, /categories, /promotions

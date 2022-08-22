@@ -17,10 +17,12 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
-  app.enableCors({
-    origin: configService.get('CLIENT_ORIGIN'),
-    credentials: true,
-  });
+  if (configService.get('NODE_ENV') === 'development') {
+    app.enableCors({
+      origin: configService.get('FE_ORIGIN'),
+      credentials: true,
+    });
+  }
 
   app.use(cookieParser);
   app.use(json({ limit: '1mb' }));
