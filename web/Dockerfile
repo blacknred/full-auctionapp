@@ -13,10 +13,15 @@ FROM nginx:stable-alpine as production
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 WORKDIR /usr/src/app
-COPY --from=build /usr/src/app/next.config.js /usr/src/app/package.json /usr/src/app/ssl-server.json ./
+# Don't run production as root
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+USER nextjs
+# from build
 COPY --from=build /usr/src/app/public ./public
-COPY --from=build /usr/src/app/.next/standalone ./
-COPY --from=build /usr/src/app/.next/static ./.next/static
+COPY --from=build /usr/src/app/next.config.js /usr/src/app/package.json /usr/src/app/ssl-server.json ./
+COPY --from=build --chown=nextjs:nodejs /usr/src/app/.next/standalone ./
+COPY --from=build --chown=nextjs:nodejs /usr/src/app/.next/static ./.next/static
 EXPOSE 80 443
 CMD ["node", "ssl-server.js"]
 # CMD ["node", "server.js"]

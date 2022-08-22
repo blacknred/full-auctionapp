@@ -65,14 +65,15 @@
   - load ballancer(only for microservices since message queue issues)
 - Nodejs
   - NestJs MVC, passport
+  - Mikroorm
   - swagger
   - jest, supertest
 - Client
-  - NextJs, nextauth
+  - NextJs, next-auth, next-pwa, next-seo
   - tailwind
   - react-intl
   - swr
-  - redux-toolkit/recoil
+  - redux-toolkit
   - jest, testing-library, cypress
 
 ## App
@@ -288,6 +289,6 @@ bids history -->
 - full text search for offer.title field with tsvector
 - offer q&a or chat
 - stripe
-- prometheus & graphana
-- switch to microservices
+- prometheus & grafana
+- switch to microservices?
 - web admin client: /users, /categories, /promotions

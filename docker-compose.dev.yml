@@ -30,7 +30,6 @@ services:
       - REDIS_PASSWORD=${REDIS_PASSWORD:-test}
     ports:
       - "6379:6379"
-      # - "8001:8001"
     networks:
       - backend
     healthcheck:
@@ -72,9 +71,6 @@ services:
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/${POSTGRES_DB:-test}
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
-      # in prod we serve be and fe in the same nginx container, so fe will use sameorigin requests for api
-      # in dev we serve be and fe separately so we need the next env to enable cors
-      - FE_ORIGIN=${FE_ORIGIN:-http://localhost:3000}
     depends_on:
       - redis
       - postgres
@@ -83,7 +79,6 @@ services:
       - "8080:3000"
     networks:
       - backend
-      - frontend
 
   web:
     container_name: web
@@ -101,12 +96,30 @@ services:
       - NODE_OPTIONS=--openssl-legacy-provider
       - SKIP_PREFLIGHT_CHECK=true
       - CHOKIDAR_USEPOLLING=true
-      # in prod we serve be and fe in the same nginx container, so fe will use sameorigin requests for api
-      # in dev we serve be and fe separately so we need the next env to enable cors
-      - BE_ORIGIN=${BE_ORIGIN:-http://localhost:8080}
+      # - NEXT_PUBLIC_BE_ORIGIN=${BE_ORIGIN:-http://localhost:8080}
     ports:
       - "3000:3000"
     networks:
+      - frontend
+
+  proxy:
+    container_name: proxy
+    hostname: proxy
+    image: nginx:stable-alpine
+    command: [nginx-debug, '-g', 'daemon off;']
+    env_file: ./.env
+    restart: always
+    volumes:
+      - "./nginx/etc/dev.service.conf:/etc/nginx/conf.d/service.conf:ro"
+    environment:
+      - NGINX_ENTRYPOINT_QUIET_LOGS=1
+    depends_on:
+      - api
+      - web
+    ports:
+      - "80:80"
+    networks:
+      - backend
       - frontend
 
 networks:

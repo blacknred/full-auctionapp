@@ -79,36 +79,6 @@ services:
     networks:
       - backend
 
-  proxy:
-    container_name: proxy
-    hostname: proxy
-    build:
-      context: ./nginx
-      target: build
-    env_file: ./.env
-    restart: always
-    volumes:
-      - "./nginx/etc/ssl:/etc/nginx/ssl"
-      - "./nginx/etc/nginx.conf:/etc/nginx/nginx.conf"
-      - "./nginx/etc/proxy.conf:/etc/nginx/service.conf"
-    environment:
-      - TZ=${TZ}
-      - LETSENCRYPT=true
-      - LE_FQDN=${SSL_DOMAIN}
-      - LE_EMAIL=${SSL_EMAIL}
-    depends_on:
-      - api
-    ports:
-      - "80:80"
-      - "443:443"
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "5"
-    networks:
-      - backend
-      - frontend
   # web:
   #   container_name: web
   #   hostname: web
@@ -126,6 +96,35 @@ services:
   #     - "3000:3000"
   #   networks:
   #     - frontend
+
+  proxy:
+    container_name: proxy
+    hostname: proxy
+    build: ./nginx
+    env_file: ./.env
+    restart: always
+    volumes:
+      - "./nginx/etc/ssl:/etc/nginx/ssl"
+      - "./nginx/etc/service.conf:/etc/nginx/service.conf"
+    environment:
+      - TZ=${TZ}
+      - LETSENCRYPT=true
+      - LE_FQDN=${SSL_DOMAIN}
+      - LE_EMAIL=${SSL_EMAIL}
+    depends_on:
+      - api
+      - web
+    ports:
+      - "80:80"
+      - "443:443"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+    networks:
+      - backend
+      - frontend
 
 networks:
   backend:
