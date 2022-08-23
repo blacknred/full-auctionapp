@@ -3,7 +3,7 @@ import { Entity, ManyToOne } from '@mikro-orm/core';
 import { Offer } from 'src/offers/offers/entities/offer.entity';
 import { User } from 'src/users/users/entities/user.entity';
 
-@Entity({ tableName: 'order_observer' })
+@Entity({ tableName: 'offer_observer' })
 export class Favorite {
   @ManyToOne(() => User, { primary: true })
   user: User;

@@ -40,165 +40,158 @@
 
 `Monetization`
 
-- Cons: Ads, 25 bids per month
+- Limited acc: 25 bids per month, ads
+- Unlimited(fixed price, 1month) acc: unlimited bids, no ads, smart notifications
 - Offer promotion(fixed price, 1month)
-- Premium functionality(fixed price, 1month): unlimited bids, smart notifications, no ads
 
 ## Arch(docker)
 
 - RabbitMQ
   - handle peaks with batching: pre_ending bids, notifications
   - delayed exchange (instead of cron)
-    - delayed_exchange_premium_payment(1mon), delayed_exchange_promotion_payment(1m)
+    - delayed_exchange_unlimited_payment(1mon), delayed_exchange_promotion_payment(1mon)
     - delayed_exchange_offer_closing(n), delayed_exchange_offer_winner(1d)
     - delayed_exchange_user_deletion(1mon)
 - Redis
-  - cache: bids:user_id(ttl)
+  - cache(ttl): bids:user_id
   - pubsub: offers_channel firehose
 - Postgres
   - entities
+
+    ```ddl
+    DROP TABLE IF EXISTS user;
+    DROP TABLE IF EXISTS 'identity';
+    DROP TABLE IF EXISTS timeline;
+    DROP TABLE IF EXISTS offer;
+    DROP TABLE IF EXISTS offer_bid;
+    DROP TABLE IF EXISTS offer_observer;
+    DROP TABLE IF EXISTS offer_category;
+
+    -- USERS
+    CREATE TABLE user (
+      id serial PRIMARY KEY,
+      'username' varchar(100) NOT NULL CHECK (length(VALUE) >= 5),
+      'image' text,
+      bio text,
+      rating smallint NOT NULL DEFAULT 0,
+      created_at date NOT NULL DEFAULT now(),
+      updated_at date NOT NULL,
+      deleted_at date,
+    )
+    CREATE TABLE 'user_identity' (
+      email text UNIQUE NOT NULL CHECK (length(VALUE) >= 5),
+      'password' text NOT NULL,
+      phone varchar(500),
+      is_admin boolean DEFAULT 0,
+      is_unlimited boolean DEFAULT 0,
+      notification_method enum('email', 'phone') NOT NULL DEFAULT 'email',
+      currency varchar(3) NOT NULL DEFAULT 'USD',
+      'locale' varchar(5) NOT NULL,
+      user_id int REFERENCES user(id) UNIQUE ON UPDATE CASCADE ON DELETE SET NULL
+    )
+    CREATE TABLE user_timeline (
+      notifications jsonb  -- [{ offer_id, body, created_at }], <1000
+      user_id int REFERENCES user(id) UNIQUE ON UPDATE CASCADE ON DELETE SET NULL
+    )
+
+    -- OFFERS
+    CREATE TABLE offer_category (
+      id serial PRIMARY KEY,
+      'name' varchar(500) UNIQUE NOT NULL CHECK (length(VALUE) >= 5),
+      specifications jsonb, -- [{ specname: decription }]
+      created_at date NOT NULL DEFAULT now(),
+      updated_at date NOT NULL,
+      category_id smallint REFERENCES employee(id) ON DELETE CASCADE
+    )
+    CREATE TABLE offer (
+      id serial PRIMARY KEY,
+      'type' enum('sell', 'buy') NOT NULL DEFAULT 'sell',
+      title varchar(500) NOT NULL CHECK (length(VALUE) >= 5),
+      'description' text NOT NULL,
+      specifications jsonb, -- [{ specname: value }]
+      assets text[],
+      created_at date NOT NULL DEFAULT now(),
+      updated_at date NOT NULL,
+      ends_at date NOT NULL,
+      'status' enum('active', 'inactive', 'failed', 'finished') NOT NULL DEFAULT 'active',
+      start_price numeric(15,4) NOT NULL,
+      blitz_price numeric(15,4),
+      price_step numeric(15,4),
+      currency char(3) NOT NULL,
+      is_promoted boolean DEFAULT 0,
+      is_anonymous boolean DEFAULT 0,
+      is_single_bid boolean DEFAULT 0,
+      bidder_min_rating int,
+      views_cnt int NOT NULL DEFAULT 0;
+      category_id smallint REFERENCES category(id) ON UPDATE CASCADE ON DELETE CASCADE,
+      author_id int REFERENCES user(id) ON UPDATE CASCADE ON DELETE CASCADE,
+    ) PARTITION BY RANGE (created_at);
+    CREATE TABLE offer_2022 PARTITION OF offer FOR VALUES FROM ('2022.01.01') TO ('2023-01-01');
+    CREATE TABLE offer_favorite (
+      offer_id int REFERENCES offer(id) ON UPDATE CASCADE,
+      user_id int REFERENCES user(id) ON UPDATE CASCADE,
+      PRIMARY KEY (offer_id, user_id)
+    )
+    CREATE TABLE offer_bid (
+      price numeric(15,4) NOT NULL,
+      comment text,
+      created_at date NOT NULL DEFAULT now(),
+      offer_id int REFERENCES offer(id) ON UPDATE CASCADE,
+      user_id int REFERENCES user(id) ON UPDATE CASCADE,
+      PRIMARY KEY (offer_id, user_id)
+    )
+
+    -- INDICES
+    CREATE UNIQUE INDEX identity_user_id_idx ON 'identity'(user_id);
+    CREATE UNIQUE INDEX notification_user_id_idx ON 'notification'(user_id);
+    CREATE INDEX offer_category_id_idx ON offer(category_id);
+    CREATE INDEX offer_author_id_idx ON offer(author_id);
+    CREATE INDEX offer_created_at_idx ON offer(created_at);
+    ```
+
   - procedures
 - Nginx
-  - proxy
+  - proxy, http cache, load ballancer
   - security(ssl, rate limiting, cors, helmet headers)
-  - http cache
-  - load ballancer(only for microservices since message queue issues)
 - Nodejs
-  - NestJs MVC, passport
-  - Mikroorm
-  - swagger
+  - NestJs MVC, passport(jwt), mikroorm, amqplib, ioredis
+  - swagger, compodoc, metrics(prom-client, termius)
   - jest, supertest
-- Client
+- Web client
   - NextJs, next-auth, next-pwa, next-seo
-  - tailwind
-  - react-intl
-  - swr
-  - redux-toolkit
+  - tailwind, react-intl, swr, redux-toolkit
   - jest, testing-library, cypress
 
 ## App
-
-### Entities
-
-```ddl
-DROP TABLE IF EXISTS user;
-DROP TABLE IF EXISTS 'identity';
-DROP TABLE IF EXISTS timeline;
-DROP TABLE IF EXISTS category;
-DROP TABLE IF EXISTS offer;
-DROP TABLE IF EXISTS offer_bid;
-DROP TABLE IF EXISTS offer_observer;
-
--- USERS
-CREATE TABLE user (
-  id serial PRIMARY KEY,
-  'username' varchar(100) NOT NULL CHECK (length(VALUE) >= 5),
-  'image' text,
-  bio text,
-  rating smallint NOT NULL DEFAULT 0,
-  created_at date NOT NULL DEFAULT now(),
-  updated_at date NOT NULL,
-  deleted_at date,
-)
-CREATE TABLE 'identity' (
-  email text UNIQUE NOT NULL CHECK (length(VALUE) >= 5),
-  'password' text NOT NULL,
-  phone varchar(500),
-  is_admin boolean DEFAULT 0,
-  is_premium boolean DEFAULT 0,
-  notification_method enum('email', 'phone') NOT NULL DEFAULT 'email',
-  currency varchar(3) NOT NULL DEFAULT 'USD',
-  'locale' varchar(5) NOT NULL,
-  user_id int REFERENCES user(id) UNIQUE ON UPDATE CASECADE ON DELETE SET NULL
-)
-CREATE TABLE timeline (
-  notifications jsonb  -- [{ offer_id, body, created_at }], <1000
-  user_id int REFERENCES user(id) UNIQUE ON UPDATE CASCADE ON DELETE SET NULL
-)
-
--- OFFERS
-CREATE TABLE category (
-  id serial PRIMARY KEY,
-  'name' varchar(500) UNIQUE NOT NULL CHECK (length(VALUE) >= 5),
-  specifications jsonb, -- [{ spec: decription }]
-  created_at date NOT NULL DEFAULT now(),
-  updated_at date NOT NULL,
-  category_id smallint REFERENCES employee(id) ON DELETE CASCADE
-)
-CREATE TABLE offer (
-  id serial PRIMARY KEY,
-  'type' enum('sell', 'buy') NOT NULL DEFAULT 'sell',
-  title varchar(500) NOT NULL CHECK (length(VALUE) >= 5),
-  'description' text NOT NULL,
-  specifications jsonb, -- [{ spec: value }]
-  assets text[],
-  created_at date NOT NULL DEFAULT now(),
-  updated_at date NOT NULL,
-  ends_at date,
-  'status' enum('active', 'inactive', 'failed', 'finished') NOT NULL DEFAULT 'active',
-  start_price numeric(15,4) NOT NULL,
-  blitz_price numeric(15,4),
-  price_step numeric(15,4),
-  currency char(3) NOT NULL,
-  is_promoted boolean DEFAULT 0,
-  is_anonymous boolean DEFAULT 0,
-  is_single_bid boolean DEFAULT 0,
-  bidder_min_rating int,
-  views_cnt int NOT NULL DEFAULT 0;
-  category_id smallint REFERENCES category(id) ON UPDATE CASCADE ON DELETE CASCADE,
-  author_id int REFERENCES user(id) ON UPDATE CASCADE ON DELETE CASCADE,
- ) PARTITION BY RANGE (created_at);
-CREATE TABLE offer_2022 PARTITION OF offer FOR VALUES FROM ('2022.01.01') TO ('2023-01-01');
-CREATE TABLE offer_observer (
-  offer_id int REFERENCES offer(id) ON UPDATE CASCADE,
-  user_id int REFERENCES user(id) ON UPDATE CASCADE,
-  PRIMARY KEY (offer_id, user_id)
-)
-CREATE TABLE offer_bid (
-  price numeric(15,4) NOT NULL,
-  comment text,
-  created_at date NOT NULL DEFAULT now(),
-  offer_id int REFERENCES offer(id) ON UPDATE CASCADE,
-  user_id int REFERENCES user(id) ON UPDATE CASCADE,
-  PRIMARY KEY (offer_id, user_id)
-)
-
--- INDICES
-CREATE UNIQUE INDEX identity_user_id_idx ON 'identity'(user_id);
-CREATE UNIQUE INDEX notification_user_id_idx ON 'notification'(user_id);
-CREATE INDEX offer_category_id_idx ON offer(category_id);
-CREATE INDEX offer_author_id_idx ON offer(author_id);
-CREATE INDEX offer_created_at_idx ON offer(created_at);
-```
 
 ### API(monolith)
 
 - `MONITORING`
 - `AUTH`(crud):
-  - create: refresh*token*&\_access_token_via_cookie, payload{id,is_admin,is_premium,urgent_notification_method}
+  - create: refresh*token*&\_access_token_via_cookie, payload{id,is_admin,is_unlimited,urgent_notification_method}
   - read:
   - patch: access_token
   - delete: remove_tokens_from_cookie
 - `PAYMENT`(cd,amqp)
-  - create(user_enable_promotion_or_premium):
-    - try_payment ? update_offer_promotion_or_premium_profile_to_true_and_set_delayed_exchange_payment : null
+  - create(user_enable_promotion_or_unlimited):
+    - try_payment ? update_offer_promotion_or_unlimited_profile_to_true_and_set_delayed_exchange_unlimited_payment : null
     - send_notification
-  - delete(user_disable_promotion_or_premium): just_update_offer_promotion_or_premium_profile_to_false
+  - delete(user_disable_promotion_or_unlimited): just_update_offer_promotion_or_unlimited_profile_to_false
   - payment_method(amqp):
-    - offer_promotion_or_premium_profile_are_false_or_offer_is_finished ?? return
-    - try_payment ? set_new_amqp_message : update_offer_promotion_or_premium_profile_to_false
+    - offer_promotion_or_unlimited_profile_are_false_or_offer_is_finished ?? return
+    - try_payment ? set_new_amqp_message : update_offer_promotion_or_unlimited_profile_to_false
     - send_notification
 - `USER`
   - `USER`(crud,amqp):
     - create({email,name,password}):200: User & Profile
     - read: Profile
-    - patch: enable_premium->payment_transaction->delayed_exchange_premium_payment_publish(1mon)(if_fails_disable_premium_and_send_notification)
+    - patch: enable_unlimited->payment_transaction->delayed_exchange_unlimited_payment_publish(1mon)(if_fails_disable_unlimited_and_send_notification)
     - delete: soft_delete->delayed_exchange_user_delete(1mon)
-    - premium*payment(): delayed_exchange_premium_payment_consume->payment_transaction
-      -\_premium-payment(amqp)*: payment_transaction->if_fails_disable_premium_and_send_notification
+    - unlimited*payment(): delayed_exchange_unlimited_payment_consume->payment_transaction
+      -\_unlimited-payment(amqp)*: payment_transaction->if_fails_disable_unlimited_and_send_notification
   - `NOTIFICATION`(crd,amqp)
     - create
-    - read
+    - read (length)
     - delete
 - `OFFER`
   - `CATEGORY`(crud)
@@ -235,7 +228,7 @@ CREATE INDEX offer_created_at_idx ON offer(created_at);
     - delete(401):
   - `BID`(crd,amqp,redis)
     - create(401)
-      - filter_bids_from_user_with_premium_or_under_25_bids_per_month
+      - filter_bids_from_user_with_unlimited_or_under_25_bids_per_month
       - delayed_exchange_bulk_bids_publish
     - createBulk(amqp)
       - delayed_exchange_bulk_bids_consume
