@@ -40,9 +40,13 @@
 
 `Monetization`
 
-- Limited acc: 25 bids per month, ads
-- Unlimited(fixed price, 1month) acc: unlimited bids, no ads, smart notifications
-- Offer promotion(fixed price, 1month)
+- User
+  - limited: 25 bids per month, ads, only web notifications
+  - unlimited(fixed price, 1month): unlimited bids, no ads, email/phone notifications
+    - non-payment: back to limitations
+- Offer
+  - promoted(fixed price, 1month)
+    - non-payment: no promotion
 
 ## Arch(docker)
 
@@ -164,7 +168,7 @@
 
 ## App
 
-### API(monolith)
+### BE(monolith api)
 
 - `MONITORING`
 - `AUTH`(crud):

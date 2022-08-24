@@ -27,7 +27,7 @@ export class GetUsersDto extends PaginatedRequestDto {
   @ApiProperty({ type: 'boolean', example: true, required: false })
   @IsOptional()
   @IsBoolean({ message: 'Must be a boolean' })
-  isPremium?: boolean;
+  isUnlimited?: boolean;
 
   @ApiProperty({ type: 'boolean', example: true, required: false })
   @IsOptional()

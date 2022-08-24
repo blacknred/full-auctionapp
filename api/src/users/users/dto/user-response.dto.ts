@@ -16,7 +16,7 @@ export const userMock: User = {
     phone: '+1 893 287 345',
     notificationMethod: NotificationMethod.EMAIL,
     isAdmin: false,
-    isPremium: false,
+    isUnlimited: false,
     currency: 'USD',
     locale: 'en_EN',
     userId: 2,

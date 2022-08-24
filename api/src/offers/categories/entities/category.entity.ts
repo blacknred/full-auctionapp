@@ -3,7 +3,7 @@ import { Entity, ManyToOne, Property } from '@mikro-orm/core';
 import { BaseEntity } from 'src/__shared__/entity/baseEntity.entity';
 import type { CategorySpecifications } from '../types/category.type';
 
-@Entity({ tableName: 'category' })
+@Entity({ tableName: 'offer_category' })
 export class Category extends BaseEntity<Category> {
   @Property({
     unique: true,

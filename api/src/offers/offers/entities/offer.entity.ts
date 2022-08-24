@@ -14,7 +14,7 @@ import { v4 } from 'uuid';
 import { Bid } from 'src/offers/bids/entities/bid.entity';
 import { Category } from 'src/offers/categories/entities/category.entity';
 import type { CategorySpecifications } from 'src/offers/categories/types/category.type';
-import { Observer } from 'src/offers/favorites/entities/favorite.entity';
+import { Watcher } from 'src/offers/watchers/entities/watcher.entity';
 import { User } from 'src/users/users/entities/user.entity';
 import { BaseEntity } from 'src/__shared__/entity/baseEntity.entity';
 import { OfferStatus, OfferType } from '../types/offer.type';
@@ -90,6 +90,6 @@ export class Offer extends BaseEntity<Offer> {
   @ManyToMany({ entity: () => User, pivotEntity: () => Bid })
   bids = new Collection<Bid>(this);
 
-  @ManyToMany({ entity: () => User, pivotEntity: () => Observer })
-  observers = new Collection<User>(this);
+  @ManyToMany({ entity: () => User, pivotEntity: () => Watcher })
+  watchers = new Collection<User>(this);
 }

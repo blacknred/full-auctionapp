@@ -26,7 +26,7 @@ export class Identity {
   isAdmin = false;
 
   @Property()
-  isPremium = false;
+  isUnlimited = false;
 
   @Property({ length: 3, check: 'length(currency) == 3' })
   currency = 'USD';

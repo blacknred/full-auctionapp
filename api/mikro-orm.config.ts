@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 
 import { Bid } from './src/offers/bids/entities/bid.entity';
 import { Category } from './src/offers/categories/entities/category.entity';
-import { Favorite } from './src/offers/favorites/entities/favorite.entity';
+import { Favorite } from './src/offers/watchers/entities/watcher.entity';
 import { Offer } from './src/offers/offers/entities/offer.entity';
 import { Notification } from './src/users/notifications/entities/notification.entity';
 import { Timeline } from './src/users/notifications/entities/timeline.entity';

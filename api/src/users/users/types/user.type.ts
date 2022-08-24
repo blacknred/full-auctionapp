@@ -7,7 +7,7 @@ export type Identity = {
   email: string;
   phone: string;
   isAdmin: boolean;
-  isPremium: boolean;
+  isUnlimited: boolean;
   notificationMethod: NotificationMethod;
   currency: string;
   locale: string;
