@@ -28,10 +28,11 @@ async function bootstrap() {
     //
     .addTag('Users')
     .addTag('Notifications')
+    .addTag('Billing')
     .addTag('Offers')
     .addTag('Categories')
     .addTag('Bids')
-    .addTag('Observers')
+    .addTag('Watchers')
     .addTag('Auth')
     .addTag('Metrics')
     //

@@ -6,6 +6,7 @@ import { AmqpModule } from 'nestjs-amqp';
 import { RedisModule } from 'nestjs-redis';
 
 import { AuthModule } from './auth/auth.module';
+import { BillingModule } from './billing/billing.module';
 import { MonitoringModule } from './monitoring/monitoring.module';
 import { OffersModule } from './offers/offers.module';
 import { UsersModule } from './users/users.module';
@@ -35,6 +36,7 @@ import { redisProvider } from './__shared__/providers/redis.provider';
     UsersModule,
     OffersModule,
     AuthModule,
+    BillingModule,
     MonitoringModule,
   ],
   providers: [Logger],
